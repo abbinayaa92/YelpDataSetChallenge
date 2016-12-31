@@ -1,0 +1,114 @@
+body {
+  font-family: 'Segoe UI', Frutiger, 'Frutiger Linotype', 'Dejavu Sans', 'Helvetica Neue', Arial, sans-serif;
+}
+
+a, a:focus {
+  color:#333;
+  outline: none;
+}
+
+/* 
+#container {
+  padding-top:20px;
+  /*width: 100%;*/
+  /* width: 980px; */
+  /* border-left: 2px #ddd solid; */
+  /* border-right: 2px #ddd solid; */
+}
+ */
+
+header {
+  padding: 10px;
+}
+
+#title {
+  font-size: 2.3em;
+  margin:0;
+  text-align: center;
+}
+
+#text-select {
+  float:right;
+  margin-right: 10px;
+}
+
+#show {
+  overflow: hidden;
+  position: relative;
+}
+
+#business {
+  padding:0 0 20px 20px;
+}
+
+/* 
+#controls {
+  padding: 20px;
+  background-color: #eee;
+  margin: 10px;
+  width: 350px;
+}
+ */
+
+#circle-background {
+  fill: none;
+  pointer-events: all;
+}
+
+.circle-node {
+  /* fill: #d1e0f3; */
+  /*fill: #086387;*/
+  opacity: 0.8;
+}
+
+.circle-hover {
+  /* fill: #b8c7d9; */
+  /* stroke: #CEE98F; */
+  opacity: 1;
+}
+
+ul.white{
+  color:#fff;
+}
+
+.circle-selected {
+  opacity: 0.95;
+}
+/* 
+.positive-sentiment {
+  color: #a1d99b;
+}
+.negative-sentiment {
+  color: #fc9272;
+}
+ */
+.active {
+  font-weight: 900;
+}
+
+a.circle-label {
+  font-family: 'Segoe UI Semibold', Frutiger, 'Frutiger Linotype', 'Dejavu Sans', 'Helvetica Neue', Arial, sans-serif;
+  color: #38c;
+  cursor: pointer;
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  line-height: 1em;
+  position: absolute;
+}
+
+
+.circle-label .circle-label-value {
+  font: 11px sans-serif;
+  white-space: nowrap;
+}
+
+/* 
+footer p {
+  text-align: center;
+  padding-top:20px;
+  padding-bottom:20px;
+  font: 13px sans-serif;
+}
+ */
+

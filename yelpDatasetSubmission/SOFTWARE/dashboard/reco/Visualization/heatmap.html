@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v2.min.js?2.9.6"></script>
+<script src="jquery-3.1.1.min.js"></script>
+<script src="histogramsinitial.js"></script>
+<style>
+
+.background {
+  fill: none;
+  pointer-events: all;
+}
+
+#states {
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+#states text {
+  fill: #000;
+  stroke: none;
+  text-anchor:middle;
+  font-size: 7px;
+}
+
+#states .active {
+  fill: #42f4dc !important;
+}
+
+#states text.active {
+  font-size: 12px;
+  font-weight:bold;
+  fill: #000;
+  stroke-width: .5px;
+  fill: #000 !important;
+  stroke: #000;
+}
+
+div.tooltip { 
+    position: absolute;     
+    text-align: center;     
+    width: 60px;          
+    height: 28px;         
+    padding: 2px;       
+    font: 15px sans-serif;    
+    background: lightsteelblue; 
+    border: 0px;    
+    border-radius: 8px;     
+    pointer-events: none;     
+}
+
+
+</style>
+<body onload="myFunction('yes');">
+<h2> Cultural Trend Analysis</h2>
+<input type="text" id="fname" style="margin: 0 20px 20px 0;">
+<button onclick="myFunction('no')">Search</button><br/>
+<div id="map" style="float: left;margin: 0 50px 50px 0;"></div>
+<h3 id="topfive"></h3>
+<script>
+function myFunction(initial)
+{
+
+var searchterm = document.getElementById("fname").value;
+
+alert("calling!")
+if(initial=="no")
+   $.ajax({
+        type: "GET",
+        url: "http://127.0.0.1:5000/culturalTrends/"+searchterm,
+        data: { param: searchterm },
+        success: callbackFunc
+    });
+
+
+
+}
+
+function callbackFunc(result)
+{
+
+var hits = {};
+var topfive = {};
+var parade;
+
+//if(initial=="yes")
+  //parade = window.histogramsinitial.states;
+//else
+obj = JSON.parse(result);
+parade = obj.states;
+for (var i = 0 ; i<parade.length ; i++)
+{
+    hits[parade[i].name] = parade[i].hits;
+    topfive[parade[i].name] = parade[i].topfive;
+}
+
+var width = 960,
+    height = 500,
+    centered;
+
+var projection = d3.geo.albersUsa()
+    .scale(width)
+    .translate([0, 0]);
+
+var path = d3.geo.path()
+    .projection(projection);
+
+d3.select("svg").remove();
+
+// Define the div for the tooltip
+var div = d3.select("#map").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+var svg = d3.select("#map").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+svg.append("rect")
+    .attr("class", "background")
+    .attr("width", width)
+    .attr("height", height)
+    .on("click", click);
+
+var g = svg.append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+  .append("g")
+    .attr("id", "states");
+
+d3.json("states.json", function(json) {
+  console.log("json is: "+json);
+
+
+    var heatmap = d3.scale.linear()
+    .domain([0,d3.max(json.features, function(d) { return Math.log(hits[d.properties.name] || 1); })])
+    .interpolate(d3.interpolateRgb)
+    .range(["#ffffff","#002766"])
+  var states = g.selectAll("path")
+    .data(json.features)
+    .enter().append("path")
+      .attr("d", path)
+      .attr("id", function(d) { return d.properties.name; })
+      .style("fill", function(d) { return heatmap(Math.log(hits[d.properties.name] || 1)); })
+      .on("click", click)
+      .on("mousemove", function(d) {    
+            div.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            div .html(hits[d.properties.name])  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");  
+            })          
+        .on("mouseout", function(d) {   
+            div.transition()    
+                .duration(500)    
+                .style("opacity", 0); 
+        })
+  var labels = g.selectAll("text")
+    .data(json.features)
+    .enter().append("text")
+      .attr("transform", function(d) { return "translate(" + path.centroid(d) + ")"; })
+      .attr("id", function(d) { return 'label-'+d.properties.name; })
+      .attr("dy", ".35em")
+      .on("click", click)
+      .on("mousemove", function(d) {    
+            div.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            div .html(hits[d.properties.name])  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");  
+            })          
+        .on("mouseout", function(d) {   
+            div.transition()    
+                .duration(500)    
+                .style("opacity", 0); 
+        })
+      .text(function(d) { return d.properties.name; });
+});
+
+
+function click(d) {
+  var x = 0,
+      y = 0,
+      k = 1;
+
+  if (d && centered !== d) {
+    var centroid = path.centroid(d);
+    x = -centroid[0];
+    y = -centroid[1];
+    k = 4;
+    centered = d;
+  } else {
+    centered = null;
+  }
+
+
+
+  g.selectAll("path")
+      .classed("active", centered && function(d) { return d === centered; });
+  g.selectAll("text")
+      .text(function(d) { return d.properties.name; })
+      .classed("active",false);
+  if (centered) {
+      g.select("#label-"+centered.properties.name)
+          .text(function(d) { return d.properties.name+': '+(hits[d.properties.name]||'(none)'); })
+          .classed("active", centered && function(d) { return d === centered; });
+
+
+  var text = "";
+  for (i = 0; i < topfive[d.properties.name].length; i++) 
+  {
+      var index = i+1
+      text += index + ". " + topfive[d.properties.name][i][0] + "<br/>";
+  }
+
+  alert(text)
+
+       d3.select("#topfive").html("Top 5:" + "<br/>" + text);
+  }
+
+  g.transition()
+      .duration(1000)
+      .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
+      .style("stroke-width", 1.5 / k + "px");
+}
+
+}
+
+</script>
+</body>
+</html>

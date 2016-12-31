@@ -1,0 +1,13 @@
+div.bar {
+        display: inline-block;
+        width: 150px;
+        height: 150px; 
+        margin-right: 2px;
+        background-color: teal;
+        border: solid
+      }
+
+table {
+    border-collapse: separate;
+    border-spacing: 10px 50px;
+}

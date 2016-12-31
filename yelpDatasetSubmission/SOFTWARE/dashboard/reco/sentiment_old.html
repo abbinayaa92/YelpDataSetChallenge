@@ -1,0 +1,90 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Review Analysis</title>
+
+  <link rel="stylesheet" href="style.css">
+  <!-- end CSS-->
+
+  <script src="js/modernizr.custom.js"></script>
+</head>
+
+<body>
+  <div >
+
+	<div id="Selector">
+	<p> Select Product : <select id="select-bus" onchange="runDemo(this.value)">
+      </select>
+      </p>
+      
+      
+      <div id="vis"></div>
+
+      <div id="status"></div>
+      <div id="review" class="dl-horizontal"></div>
+
+
+  </div> <!--! end of #container -->
+
+
+  <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script>
+
+  <script defer src="js/plugins.js"></script>
+  <script src="js/libs/d3.min.js"></script>
+  <script src="js/vis.js"></script>
+  <script>
+     var root, texts;
+      root = typeof exports !== "undefined" && exports !== null ? exports : this;
+      root.plotData = function(selector, data, plot) {
+        return d3.select(selector).datum(data).call(plot);
+      };
+	
+      var business = "http://127.0.0.1:28017/yideas/business/"
+      $.ajaxSetup( { "async": false } );
+	$.getJSON(business, function(data) {
+  
+    $.each(data.rows, function(index, item) { 
+        $("#select-bus").append( 
+            $("<option></option>") 
+                .text(item.name)
+                .val(item.business_id)
+        );
+    });
+    runDemo(document.getElementById("select-bus").value);
+});
+ $.ajaxSetup( { "async": true } );
+
+      
+      function runDemo(current_key) {
+      console.log(current_key);
+        var currentText, display, key, plot, text;
+
+        $( "#vis" ).empty();
+        $( "#status" ).empty();
+        $( "#review" ).empty();
+        plot = new Bubbles(current_key);
+        display = function(data) {
+          return plotData("#vis", data.rows, plot);
+        };
+        
+        var businessRating =  "http://127.0.0.1:28017/yideas/businessRating/?filter_id="+current_key;
+        $.ajaxSetup( { "async": false } );
+        $.getJSON(encodeURI(businessRating), function(data) {
+    		$.each(data.rows, function(index, item) { 
+        		$("#status").html("<h3>Overall Rating:"+Number(item.rating).toFixed(2)+"</h3>");
+    		});
+		});
+		
+        var modelMap =  "http://127.0.0.1:28017/yideas/modelMapSuper/?filter_business.id="+current_key;
+        $.ajaxSetup( { "async": false } );
+        var result = $.getJSON(encodeURI(modelMap), null,display);
+        $.ajaxSetup( { "async": true } );
+        return result
+      }
+
+  </script>
+
+</body>
+</html>

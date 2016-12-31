@@ -1,0 +1,15 @@
+html, body, iframe { height: 100%; }
+
+#product{
+	width: 300px;
+}
+
+iframe { overflow:hidden; width:100%;}
+
+table {
+    cellspacing: 20px;
+}
+ #switch-user
+    {
+       margin-left: 20px;
+    }
