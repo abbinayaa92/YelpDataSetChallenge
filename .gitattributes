@@ -1,2 +1,2 @@
 yelpDatasetSubmission/SOFTWARE/*.py linguist-language=Python
-Linguist::FileBlob.new("DataClean.py").generated?
+*.js linguist-language=Python
